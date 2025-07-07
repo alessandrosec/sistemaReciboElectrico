@@ -1,0 +1,168 @@
+/**
+ * JavaScript para la página de visualización de recibos
+ */
+
+class ReciboManager {
+    constructor() {
+        this.elementos = {
+            busquedaForm: document.getElementById('busquedaForm'),
+            numeroReciboVer: document.getElementById('numeroReciboVer'),
+            numeroCuentaVer: document.getElementById('numeroCuentaVer'),
+            buscarReciboBtn: document.getElementById('buscarReciboBtn'),
+            busquedaCard: document.getElementById('busquedaCard'),
+            reciboCard: document.getElementById('reciboCard'),
+            reciboContent: document.getElementById('reciboContent'),
+            mensajesContainer: document.getElementById('mensajesContainer'),
+            loadingOverlay: document.getElementById('loadingOverlay')
+        };
+
+        this.reciboActual = null;
+        
+        this.inicializar();
+    }
+
+    /**
+     * Inicializa los event listeners
+     */
+    inicializar() {
+        // Event listeners del formulario
+        this.elementos.busquedaForm.addEventListener('submit', (e) => this.handleBusqueda(e));
+        this.elementos.numeroCuentaVer.addEventListener('input', (e) => this.handleInputChange(e));
+
+        // Event listeners de WebSocket
+        document.addEventListener('ws_connected', () => {
+            this.mostrarMensaje('success', 'Conectado', 'Conexión establecida correctamente');
+        });
+
+        document.addEventListener('ws_disconnected', () => {
+            this.mostrarMensaje('warning', 'Desconectado', 'Se perdió la conexión. Reintentando...');
+        });
+
+        // Procesar parámetros de URL
+        this.procesarParametrosURL();
+
+        // Focus automático
+        this.elementos.numeroReciboVer.focus();
+    }
+
+    /**
+     * Procesa los parámetros de la URL
+     */
+    procesarParametrosURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const recibo = urlParams.get('recibo');
+        const cuenta = urlParams.get('cuenta');
+
+        if (recibo && cuenta) {
+            this.elementos.numeroReciboVer.value = recibo;
+            this.elementos.numeroCuentaVer.value = cuenta.toUpperCase();
+            
+            // Auto-buscar después de un delay
+            setTimeout(() => {
+                this.buscarRecibo(parseInt(recibo), cuenta.toUpperCase());
+            }, 1000);
+        }
+    }
+
+    /**
+     * Maneja el cambio en el input
+     */
+    handleInputChange(e) {
+        const valor = e.target.value.trim();
+        e.target.value = valor.toUpperCase();
+    }
+
+    /**
+     * Maneja la búsqueda del recibo
+     */
+    async handleBusqueda(e) {
+        e.preventDefault();
+        
+        const numeroRecibo = parseInt(this.elementos.numeroReciboVer.value.trim());
+        const numeroCuenta = this.elementos.numeroCuentaVer.value.trim();
+        
+        if (!numeroRecibo || !numeroCuenta) {
+            this.mostrarMensaje('error', 'Error', 'Por favor completa todos los campos');
+            return;
+        }
+
+        await this.buscarRecibo(numeroRecibo, numeroCuenta);
+    }
+
+    /**
+     * Busca y muestra el recibo
+     */
+    async buscarRecibo(idRecibo, numeroCuenta) {
+        try {
+            this.mostrarLoading(true);
+            this.deshabilitarFormulario(true);
+            
+            console.log(`🔍 Buscando recibo: ${idRecibo} para cuenta: ${numeroCuenta}`);
+            
+            if (!wsClient.isConnected) {
+                throw new Error('No hay conexión con el servidor. Por favor espera un momento.');
+            }
+
+            // Buscar el recibo
+            const response = await wsClient.obtenerRecibo(idRecibo, numeroCuenta);
+            
+            if (response.success) {
+                this.reciboActual = response.data;
+                this.mostrarRecibo(response.data);
+                this.mostrarMensaje('success', 'Recibo Encontrado', 'Recibo cargado exitosamente');
+            } else {
+                throw new Error(response.message || 'Recibo no encontrado');
+            }
+            
+        } catch (error) {
+            console.error('❌ Error buscando recibo:', error);
+            this.mostrarMensaje('error', 'Error en la Búsqueda', error.message);
+            this.ocultarRecibo();
+            
+        } finally {
+            this.mostrarLoading(false);
+            this.deshabilitarFormulario(false);
+        }
+    }
+
+    /**
+     * Muestra el recibo completo
+     */
+    mostrarRecibo(recibo) {
+        const fechaEmision = new Date(recibo.fecha).toLocaleDateString('es-GT', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        const fechaVencimiento = new Date(recibo.fechaVencimiento).toLocaleDateString('es-GT', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        const fechaPago = new Date(recibo.fechaPago).toLocaleDateString('es-GT', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        const html = `
+            <!-- Información del Cliente -->
+            <div style="margin-bottom: 30px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 20px;">
+                    <div>
+                        <h4 style="color: var(--primary-color); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">
+                            👤 INFORMACIÓN DEL CLIENTE
+                        </h4>
+                        <div class="recibo-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Nombre</span>
+                                <span class="detail-value font-bold">${recibo.nombreTitular}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Número de Cuenta</span>
+                                <span class="detail-value font-bold">${recibo.numeroCuenta}</span>
+                            </div>

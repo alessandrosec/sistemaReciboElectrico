@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Recibos - Sistema Eléctrico</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>⚡ Sistema de Recibos Eléctricos</h1>
+            <p>Consulta tus recibos pendientes</p>
+            
+            <nav class="nav-menu">
+                <a href="/consulta.html" class="nav-link active">📄 Consultar Recibos</a>
+                <a href="/pago.html" class="nav-link">💳 Pagar Recibos</a>
+                <a href="/recibo.html" class="nav-link">🧾 Ver Recibo Pagado</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Formulario de Consulta -->
+            <div class="card animate-fade-in">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        🔍 Consultar Recibos Pendientes
+                    </h2>
+                    <p class="card-subtitle">
+                        Ingresa tu número de cuenta para ver tus recibos pendientes de pago
+                    </p>
+                </div>
+
+                <form id="consultaForm" class="consulta-form">
+                    <div class="form-group">
+                        <label for="numeroCuenta" class="form-label">
+                            Número de Cuenta *
+                        </label>
+                        <input 
+                            type="text" 
+                            id="numeroCuenta" 
+                            name="numeroCuenta"
+                            class="form-input"
+                            placeholder="Ej: CTA001"
+                            maxlength="20"
+                            required
+                            autocomplete="off"
+                        >
+                        <small class="text-muted">
+                            Ingresa tu número de cuenta como aparece en tu recibo
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-lg" id="consultarBtn">
+                            <span class="btn-text">🔍 Consultar Recibos</span>
+                            <div class="spinner hidden"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Área de Resultados -->
+            <div id="resultadosContainer" class="hidden">
+                <!-- Información de la Cuenta -->
+                <div class="card animate-slide-in" id="infoCuenta">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            👤 Información de la Cuenta
+                        </h3>
+                    </div>
+                    <div id="infoCuentaContent">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Resumen de Recibos -->
+                <div class="card animate-slide-in" id="resumenRecibos">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            📊 Resumen de Recibos Pendientes
+                        </h3>
+                    </div>
+                    <div id="resumenContent">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Lista de Recibos -->
+                <div class="card animate-slide-in" id="listaRecibos">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            📄 Recibos Pendientes
+                        </h3>
+                    </div>
+                    <div id="recibosContent">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Acciones Rápidas -->
+                <div class="card animate-slide-in" id="accionesRapidas">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            ⚡ Acciones Rápidas
+                        </h3>
+                    </div>
+                    <div class="text-center">
+                        <a href="/pago.html" class="btn btn-success btn-lg" id="irPagoBtn">
+                            💳 Ir a Pagar Recibos
+                        </a>
+                        <button class="btn btn-secondary btn-lg" id="nuevaConsultaBtn">
+                            🔄 Nueva Consulta
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de Mensajes -->
+            <div id="mensajesContainer">
+                <!-- Se muestran mensajes dinámicamente -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p class="mt-md">Consultando recibos...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/websocket.js"></script>
+    <script src="/js/consulta.js"></script>
+</body>
+</html>

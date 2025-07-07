@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago de Recibos - Sistema Eléctrico</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>⚡ Sistema de Recibos Eléctricos</h1>
+            <p>Paga tus recibos de forma segura</p>
+            
+            <nav class="nav-menu">
+                <a href="/consulta.html" class="nav-link">📄 Consultar Recibos</a>
+                <a href="/pago.html" class="nav-link active">💳 Pagar Recibos</a>
+                <a href="/recibo.html" class="nav-link">🧾 Ver Recibo Pagado</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Formulario de Búsqueda -->
+            <div class="card animate-fade-in" id="busquedaCard">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        🔍 Buscar Recibos para Pagar
+                    </h2>
+                    <p class="card-subtitle">
+                        Ingresa tu número de cuenta para ver los recibos disponibles para pago
+                    </p>
+                </div>
+
+                <form id="busquedaForm" class="busqueda-form">
+                    <div class="form-group">
+                        <label for="numeroCuentaPago" class="form-label">
+                            Número de Cuenta *
+                        </label>
+                        <input 
+                            type="text" 
+                            id="numeroCuentaPago" 
+                            name="numeroCuentaPago"
+                            class="form-input"
+                            placeholder="Ej: CTA001"
+                            maxlength="20"
+                            required
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-lg" id="buscarBtn">
+                            <span class="btn-text">🔍 Buscar Recibos</span>
+                            <div class="spinner hidden"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Información de Saldo -->
+            <div class="card animate-slide-in hidden" id="saldoCard">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        💰 Información de Saldo
+                    </h3>
+                </div>
+                <div id="saldoContent">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Selección de Recibos -->
+            <div class="card animate-slide-in hidden" id="seleccionCard">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        📄 Seleccionar Recibos a Pagar
+                    </h3>
+                    <p class="card-subtitle">
+                        Selecciona los recibos que deseas pagar. Puedes pagar uno o varios a la vez.
+                    </p>
+                </div>
+                <div id="recibosDisponibles">
+                    <!-- Se llena dinámicamente -->
+                </div>
+                
+                <div class="mt-lg" id="resumenSeleccion" style="display: none;">
+                    <div class="alert alert-info">
+                        <h4>📊 Resumen de Selección</h4>
+                        <div class="recibo-details mt-md">
+                            <div class="detail-item">
+                                <span class="detail-label">Recibos Seleccionados</span>
+                                <span class="detail-value font-bold" id="cantidadSeleccionados">0</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Total a Pagar</span>
+                                <span class="detail-value font-bold text-warning" id="totalSeleccionado">Q0.00</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Saldo Disponible</span>
+                                <span class="detail-value font-bold text-success" id="saldoDisponibleResumen">Q0.00</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Saldo Restante</span>
+                                <span class="detail-value font-bold" id="saldoRestante">Q0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confirmación de Pago -->
+            <div class="card animate-slide-in hidden" id="confirmacionCard">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        💳 Confirmar Pago
+                    </h3>
+                    <p class="card-subtitle">
+                        Revisa los detalles antes de procesar el pago
+                    </p>
+                </div>
+
+                <div id="detallesPago">
+                    <!-- Se llena dinámicamente -->
+                </div>
+
+                <form id="confirmacionForm" class="mt-lg">
+                    <div class="form-group">
+                        <label for="metodoPago" class="form-label">
+                            Método de Pago
+                        </label>
+                        <select id="metodoPago" name="metodoPago" class="form-input">
+                            <option value="Saldo en cuenta">Saldo en cuenta</option>
+                            <option value="Transferencia bancaria">Transferencia bancaria</option>
+                            <option value="Tarjeta de débito">Tarjeta de débito</option>
+                            <option value="Efectivo">Efectivo</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="confirmarPago" required style="margin-right: 8px;">
+                            Confirmo que los datos son correctos y autorizo el procesamiento del pago
+                        </label>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="button" class="btn btn-secondary" id="cancelarPagoBtn">
+                            ❌ Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-success btn-lg" id="procesarPagoBtn" disabled>
+                            <span class="btn-text">💳 Procesar Pago</span>
+                            <div class="spinner hidden"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Resultado del Pago -->
+            <div class="card animate-fade-in hidden" id="resultadoCard">
+                <div id="resultadoContent">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Área de Mensajes -->
+            <div id="mensajesContainer">
+                <!-- Se muestran mensajes dinámicamente -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p class="mt-md" id="loadingText">Procesando...</p>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div id="modalConfirmacion" class="loading-overlay hidden">
+        <div class="loading-content" style="max-width: 500px;">
+            <h3 class="mb-lg">⚠️ Confirmar Pago</h3>
+            <div id="modalContent"></div>
+            <div class="mt-lg text-center">
+                <button class="btn btn-secondary" id="modalCancelar">Cancelar</button>
+                <button class="btn btn-success" id="modalConfirmar">Confirmar Pago</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/websocket.js"></script>
+    <script src="/js/pago.js"></script>
+</body>
+</html>
